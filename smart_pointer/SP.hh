@@ -3,8 +3,18 @@
 
 #include "SPref.hh"
 
-
-template<class T>
+/**
+ *  A very bare bones "smart" pointer with absolutely no error checking.
+ *
+ *  We'll compare SP<T> to std::shared_ptr<T> in the demo.
+ *
+ * The basic idea of this class is that it
+ *   1. stores a pointer of type T*
+ *   2. keeps track of how many copes of itself are made.
+ * When the final copy deconstructs, the stored pointer can be freed since
+ * we assume the original SP *owned* the pointer.
+ */
+template <class T>
 class SP
 {
 
@@ -17,7 +27,7 @@ public:
   SP(T* dp);
 
   // Explicit constructor for type X *.
-  template<class X>
+  template <class X>
   inline explicit SP(X *px_in);
 
   // Copy constructor for SP<T>.
@@ -47,58 +57,44 @@ public:
   /// Access operator.
   T* operator->() const
   {
-    return p;
+    return d_p;
   }
 
   /// Dereference operator.
   T& operator*() const
   {
-    return *p;
+    return *d_p;
   }
 
-  /// Get the base-class pointer; better know what you are doing.
-  T* bp() const { return p; }
+  /// Get the dumb pointer.
+  T* p() const { return d_p; }
 
   /// Boolean conversion operator.
-  operator bool() const { return p != 0; }
+  operator bool() const { return d_p != 0; }
 
   /// Operator not.
-  bool operator!() const { return p == 0; }
+  bool operator!() const { return d_p == 0; }
 
   /// Equality operator for T*.
-  bool operator==(const T *p_in) const { return p == p_in; }
+  bool operator==(const T *p_in) const { return d_p == p_in; }
 
   /// Inequality operator for T*.
-  bool operator!=(const T *p_in) const { return p != p_in; }
+  bool operator!=(const T *p_in) const { return d_p != p_in; }
 
   /// Equality operator for SP<T>.
-  bool operator==(const SP<T> &sp_in) const { return p == sp_in.p; }
+  bool operator==(const SP<T> &sp_in) const { return d_p == sp_in.p(); }
 
   /// Inequality operator for SP<T>.
-  bool operator!=(const SP<T> &sp_in) const { return p != sp_in.p; }
+  bool operator!=(const SP<T> &sp_in) const { return d_p != sp_in.p(); }
 
 private:
 
-  //-------------------------------------------------------------------------//
-  // DATA
-  //-------------------------------------------------------------------------//
-
-  /// Raw pointer held by smart pointer.
-  T *p;
+  /// Dumb pointer held by smart pointer.
+  T *d_p;
 
   /// Pointer to reference counter.
   SPref *r;
 
-  //-------------------------------------------------------------------------//
-  // IMPLEMENTATION
-  //-------------------------------------------------------------------------//
-
-
-
 };
 
 #endif // SP_HH_
-
-//---------------------------------------------------------------------------//
-//              end of SP.hh
-//---------------------------------------------------------------------------//
